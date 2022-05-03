@@ -40,19 +40,11 @@ app.use(bodyParser.json());
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({extended: true}));
 
-const peerServer = ExpressPeerServer(app, {
-  port:8080,
-  allow_discovery: true,
-  debug:true,
-  path: '/myapp',
-});
-
-peerServer.on('connection', function(id) {
-  console.log(id)
-});
 
 
-app.use('/peerjs', peerServer);
+
+
+
 
 // database
 const db = require("./app/models");
@@ -91,10 +83,18 @@ const PORT = process.env.PORT || 8080;
 
 
 
-app.listen(PORT, async () => {
+const server = app.listen(PORT, async () => {
   console.log(`Server is running on port ${PORT}.`);
 });
 
 
+const peerServer = ExpressPeerServer(server, {
+  port:8080,
+  allow_discovery: true,
+  debug:true,
+  path: '/myapp',
+});
+
+app.use('/peerjs', peerServer);
 
 
