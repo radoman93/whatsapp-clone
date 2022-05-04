@@ -88,7 +88,7 @@ exports.getConversationById = async (req, res) => {
         include: [
           {
             model: db.User,
-            as: 'participant'
+            as: 'user'
           },
         ]
       }, {
