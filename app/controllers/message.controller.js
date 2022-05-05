@@ -72,6 +72,7 @@ exports.getMessagesByConversationId = async (req, res) => {
       where: {
         conversationId: req.params.conversationId
       },
+      limit, offset,
       include: [{
         model: db.Attachment
       },

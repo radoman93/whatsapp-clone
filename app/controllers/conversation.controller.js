@@ -11,6 +11,7 @@ const {validationResult} = require("express-validator");
 const {ERR_SERVER_ERROR, ERR_VALIDATION, ERR_CONVERSATION_NOT_FOUND} = require("../config/error.config");
 const {getPagination, getPagingData} = require("../utils/util");
 const crypto = require("crypto");
+const {QueryTypes} = require("sequelize");
 
 async function findAllWithTasks() {
 
@@ -30,35 +31,38 @@ exports.getAllConversations = async (req, res) => {
     return res.status(400).json({errors: errors.array()});
   }
   try {
+
+    const subQuery = await db.sequelize.dialect.QueryGenerator.selectQuery('Participants',
+      {
+        attributes: ['conversationId'],
+        where: {
+          userId: 6,
+        }
+      })
+
+    console.log("Sub",subQuery);
+
     const data = await db.Conversation.findAndCountAll({
       where: {
-        ownerId: req.userId,
+            id: {[Op.in]: db.sequelize.literal(`(SELECT "conversationId" FROM "Participants" WHERE "Participants"."userId" = 6)`)}
       },
       limit, offset,
-      include: [
-        {
-          model: db.Participant,
-          as: 'Participants',
-          include: [{
+      include: [{
+        model: db.Participant,
+        as: 'Participants',
+        include: [
+          {
             model: db.User,
             as: 'user'
-          }],
-        },
-        {
-          separate: true,
-          model: db.Message,
-          limit: 1,
-          order: [
-            ['createdAt', 'DESC']
-          ]
-        },
-        {
-          model: db.Deleted_Conversations,
-          as: 'Deleted_Conversation'
-        }
-      ],
-
+          },
+        ]
+      }]
     })
+
+
+
+
+
     const response = getPagingData(data, page, limit);
 
 

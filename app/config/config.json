@@ -10,11 +10,17 @@
     }
   },
   "development": {
-    "username": "postgres",
-    "password": "123456",
-    "database": "krobachat_development",
-    "host": "127.0.0.1",
-    "dialect": "postgres"
+    "username": "icrccdonhzkdct",
+    "password": "e7a978be20450ec19470db74c1a73db7311ebfc6e8867895f9d14b668708ccf1",
+    "database": "d1kpt2bt9dnpd2",
+    "host": "ec2-54-164-40-66.compute-1.amazonaws.com",
+    "dialect": "postgres",
+    "dialectOptions": {
+      "ssl": {
+        "require": true,
+        "rejectUnauthorized": false
+      }
+    }
   },
   "test": {
     "username": "postgres",
