@@ -31,7 +31,6 @@ exports.signup = (req, res) => {
 exports.signin = (req, res) => {
 
   const errors = validationResult(req);
-  console.log("errors", errors);
   if (!errors.isEmpty()) {
     return res.status(400).json({error: ERR_VALIDATION, error_type: "ERR_VALIDATION", error_content: errors.array()});
   }
@@ -40,7 +39,7 @@ exports.signin = (req, res) => {
       phone: req.body.phone,
     }
   })
-    .then(user => {
+    .then( async (user) => {
       if (!user) {
         return res.status(404).send({error: ERR_USER_NOT_FOUND, error_type: "ERR_USER_NOT_FOUND", error_content: "User not found"});
       }
@@ -52,7 +51,10 @@ exports.signin = (req, res) => {
         });
       }
 
-
+      if(req.body.fbToken) {
+        user.fbToken = req.body.fbToken
+        await user.save()
+      }
 
       const token = jwt.sign({id: user.id}, config.secret, {
         expiresIn: 86400 // 24 hours

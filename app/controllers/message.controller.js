@@ -1,8 +1,13 @@
 const db = require("../models");
 const crypto = require('crypto');
 const {validationResult} = require("express-validator");
-const {ERR_SERVER_ERROR, ERR_MESSAGE_NOT_FOUND} = require("../config/error.config");
-const {getPagination, getPagingData} = require("../utils/util");
+const {
+  ERR_SERVER_ERROR,
+  ERR_MESSAGE_NOT_FOUND,
+  ERR_VALIDATION,
+  ERR_FB_TOKEN_NOT_FOUND
+} = require("../config/error.config");
+const {getPagination, getPagingData, sendPushNotification} = require("../utils/util");
 const {Op} = require("sequelize");
 
 exports.sendMessage = async (req, res) => {
@@ -12,6 +17,12 @@ exports.sendMessage = async (req, res) => {
     return res.status(400).json({errors: errors.array()});
   }
 
+  const user = await db.User.findOne({
+    where: {
+      id: req.userId
+    }
+  })
+
   const message = await db.Message.create({
     guid: crypto.randomUUID(),
     conversationId: req.body.conversationId,
@@ -20,7 +31,29 @@ exports.sendMessage = async (req, res) => {
     messageType: req.body.messageType
   })
 
-  res.status(200).send(message)
+  if (user.fbToken) {
+    const notification = {
+      notification: {
+        title: 'New Message',
+        body: req.body.message,
+      },
+      data: {
+        type: "MESSAGE",
+        sender: JSON.stringify(user.toJSON()),
+        content: JSON.stringify(message.toJSON())
+      },
+      token: user.fbToken
+    }
+    sendPushNotification(notification)
+    res.status(200).send(message)
+
+  } else {
+    return res.status(400).json({
+      error: ERR_FB_TOKEN_NOT_FOUND,
+      error_type: "ERR_FB_TOKEN_NOT_FOUND",
+      error_content: ERR_FB_TOKEN_NOT_FOUND
+    });
+  }
 }
 
 exports.uploadFile = async (req, res) => {
@@ -33,10 +66,8 @@ exports.uploadFile = async (req, res) => {
     messageType: req.body.messageType
   })
 
-  console.log(message.id)
 
   for (let file of req.files) {
-    console.log(file);
     const attachment = await db.Attachment.create({
       // {
       //         "fieldname": "file",
@@ -80,7 +111,7 @@ exports.getMessagesByConversationId = async (req, res) => {
           model: db.Deleted_Messages
         }],
       order: [
-        ['createdAt', 'ASC']
+        ['createdAt', 'DESC'],
       ]
     })
     const response = getPagingData(data, page, limit);

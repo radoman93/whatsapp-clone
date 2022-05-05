@@ -52,6 +52,7 @@ exports.editPhoto =  async (req, res) => {
 
 exports.edit =  async (req, res) => {
   try {
+
     const user = await db.User.findOne({
       where: {
         id: req.userId

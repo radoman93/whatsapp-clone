@@ -31,7 +31,8 @@ module.exports = (sequelize, DataTypes) => {
     lastName: DataTypes.STRING,
     profilePhoto: DataTypes.STRING,
     bio: DataTypes.STRING,
-    status: DataTypes.STRING
+    status: DataTypes.STRING,
+    fbToken: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'User',

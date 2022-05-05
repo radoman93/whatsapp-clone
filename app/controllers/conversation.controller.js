@@ -16,7 +16,6 @@ const {QueryTypes} = require("sequelize");
 async function findAllWithTasks() {
 
 
-  console.log("All users with their associated tasks:", JSON.stringify(users, null, 4));
 
 }
 
@@ -40,7 +39,6 @@ exports.getAllConversations = async (req, res) => {
         }
       })
 
-    console.log("Sub",subQuery);
 
     const data = await db.Conversation.findAndCountAll({
       where: {
@@ -129,7 +127,6 @@ exports.editPhoto = async (req, res) => {
 
 exports.searchConversations = async (req, res) => {
   try {
-    console.log(req.body.query);
     const response = await db.Conversation.findAll({
       subQuery: false,
       where: {
