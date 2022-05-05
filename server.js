@@ -1,57 +1,28 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const multer  = require('multer')
-const upload = multer({ dest: 'uploads/' })
-const { ExpressPeerServer } = require('peer');
-
+const multer = require('multer')
+const upload = multer({dest: 'uploads/'})
+const {ExpressPeerServer} = require('peer');
 const app = express();
-var corsOptions = {
-  origin: "http://localhost:8081"
-};
-const swaggerUi = require("swagger-ui-express");
-const swaggerJsdoc = require('swagger-jsdoc');
+const admin = require("firebase-admin")
+const db = require("./app/models");
+const path = require("path");
+const pathToServiceAccount = path.resolve("app/config/kroba-chat-firebase-adminsdk-cpbwp-2eea86f69e.json")
+const serviceAccount = require(pathToServiceAccount)
+const {sendPushNotification} = require("./app/utils/util");
 
-const swaggerOptions = {
-  definition: {
-    openapi: '3.0.0',
-    info: {
-      title: 'Whatsapp Clone',
-      version: '1.0.0',
-    },
-  },
-  apis: ['./app/routes/*.js'], // files containing annotations as above
-};
+const firebaseApp = admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+})
 
-const openapiSpecification = swaggerJsdoc(swaggerOptions);
 app.use(express.json());
-app.use(
-  "/api-docs",
-  swaggerUi.serve,
-  swaggerUi.setup(openapiSpecification, {explorer: true})
-);
 
 app.use(cors());
 app.use('/uploads', express.static('uploads'))
-
-// parse requests of content-type - application/json
 app.use(bodyParser.json());
-
-// parse requests of content-type - application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({extended: true}));
 
-
-
-
-
-
-
-// database
-const db = require("./app/models");
-const Role = db.role;
-
-// db.sequelize.sync();
-// force: true will drop the table if it already exists
 const force = true;
 // db.sequelize.sync({force: force}).then(async () => {
 //   console.log('Drop and Resync Database with { force: false }');
@@ -65,33 +36,29 @@ const force = true;
 //
 // });
 
+app.get("/", async (req, res) => {
 
-// simple route
-app.get("/", (req, res) => {
   res.json({message: "Welcome to bezkoder application."});
 });
 
-// routes
 require('./app/routes/auth.routes')(app);
 require('./app/routes/user.routes')(app);
 require('./app/routes/chat.routes')(app);
 require('./app/routes/conversation.routes')(app);
 require('./app/routes/message.routes')(app);
 
-// set port, listen for requests
 const PORT = process.env.PORT || 8080;
 
-
-
 const server = app.listen(PORT, async () => {
+
   console.log(`Server is running on port ${PORT}.`);
 });
 
 
 const peerServer = ExpressPeerServer(server, {
-  port:8080,
+  port: 8080,
   allow_discovery: true,
-  debug:true,
+  debug: true,
   path: '/myapp',
 });
 
