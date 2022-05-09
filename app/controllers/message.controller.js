@@ -59,7 +59,7 @@ exports.sendMessage = async (req, res) => {
         data: {
           type: "MESSAGE",
           sender: JSON.stringify(participant.user.toJSON()),
-          content: JSON.stringify(participant.user.toJSON())
+          content: JSON.stringify(message.toJSON())
         },
         token: participant.user.fbToken
       }
