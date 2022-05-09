@@ -29,7 +29,7 @@ exports.getCurrentUser =  async (req, res) => {
     res.status(200).send(user)
 
   } catch (error) {
-    res.status(500).send({error: ERR_SERVER_ERROR, error_type: "ERR_SERVER_ERROR", error_content: error.message()})
+    res.status(500).send({error: ERR_SERVER_ERROR, error_type: "ERR_SERVER_ERROR", error_content: error.message})
   }
 };
 
@@ -46,7 +46,7 @@ exports.editPhoto =  async (req, res) => {
     res.status(200).send(user)
 
   } catch (error) {
-    res.status(500).send({error: ERR_SERVER_ERROR, error_type: "ERR_SERVER_ERROR", error_content: error.message()})
+    res.status(500).send({error: ERR_SERVER_ERROR, error_type: "ERR_SERVER_ERROR", error_content: error.message})
   }
 };
 
@@ -62,6 +62,6 @@ exports.edit =  async (req, res) => {
     await user.save()
     res.status(200).send(user)
   } catch (error) {
-    res.status(500).send({error: ERR_SERVER_ERROR, error_type: "ERR_SERVER_ERROR", error_content: error.message()})
+    res.status(500).send({error: ERR_SERVER_ERROR, error_type: "ERR_SERVER_ERROR", error_content: error.message})
   }
 };

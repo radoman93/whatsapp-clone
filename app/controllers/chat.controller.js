@@ -20,7 +20,7 @@ exports.signup = async (req, res) => {
 
     res.send({message:"User registered successfully!"})
   } catch(error) {
-    res.status(500).send({error: ERR_SERVER_ERROR, error_type: "ERR_SERVER_ERROR", error_content: error.message()});
+    res.status(500).send({error: ERR_SERVER_ERROR, error_type: "ERR_SERVER_ERROR", error_content: error.message});
   }
 
 };

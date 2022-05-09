@@ -69,6 +69,6 @@ exports.signin = (req, res) => {
       });
     })
     .catch(err => {
-      res.status(500).send({error: ERR_SERVER_ERROR, error_type: "ERR_SERVER_ERROR", error_content: err.message()});
+      res.status(500).send({error: ERR_SERVER_ERROR, error_type: "ERR_SERVER_ERROR", error_content: err.message});
     });
 };

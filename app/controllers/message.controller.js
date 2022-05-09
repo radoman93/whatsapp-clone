@@ -37,6 +37,8 @@ exports.sendMessage = async (req, res) => {
     }
   })
 
+  console.log("SENDER",user.toJSON());
+
   const message = await db.Message.create({
     guid: crypto.randomUUID(),
     conversationId: req.body.conversationId,
@@ -56,8 +58,8 @@ exports.sendMessage = async (req, res) => {
         },
         data: {
           type: "MESSAGE",
-          sender: JSON.stringify(participant.toJSON()),
-          content: JSON.stringify(participant.toJSON())
+          sender: JSON.stringify(participant.user.toJSON()),
+          content: JSON.stringify(participant.user.toJSON())
         },
         token: participant.user.fbToken
       }
@@ -132,7 +134,7 @@ exports.getMessagesByConversationId = async (req, res) => {
     const response = getPagingData(data, page, limit);
     res.status(200).send(response)
   } catch (error) {
-    res.status(500).send({error: ERR_SERVER_ERROR, error_type: "ERR_SERVER_ERROR", error_content: error.message()})
+    res.status(500).send({error: ERR_SERVER_ERROR, error_type: "ERR_SERVER_ERROR", error_content: error.message})
   }
 
 };
