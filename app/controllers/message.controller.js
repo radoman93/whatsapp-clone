@@ -46,7 +46,9 @@ exports.sendMessage = async (req, res) => {
   })
 
   for (let participant of participants) {
-    if (participant.fbToken) {
+    console.log(participant.toJSON());
+    if (participant.user.fbToken) {
+
       const notification = {
         notification: {
           title: 'New Message',
