@@ -17,6 +17,20 @@ exports.sendMessage = async (req, res) => {
     return res.status(400).json({errors: errors.array()});
   }
 
+  const participants = await db.Participant.findAll({
+    where: {
+      [Op.and]: [{
+        conversationId: req.body.conversationId
+      },
+        {userId: {[Op.not]: req.userId}}]
+    },
+    include: [{
+      model: db.User,
+      as: 'user'
+    }]
+  })
+
+
   const user = await db.User.findOne({
     where: {
       id: req.userId
@@ -31,29 +45,28 @@ exports.sendMessage = async (req, res) => {
     messageType: req.body.messageType
   })
 
-  if (user.fbToken) {
-    const notification = {
-      notification: {
-        title: 'New Message',
-        body: req.body.message,
-      },
-      data: {
-        type: "MESSAGE",
-        sender: JSON.stringify(user.toJSON()),
-        content: JSON.stringify(message.toJSON())
-      },
-      token: user.fbToken
+  for (let participant of participants) {
+    if (participant.fbToken) {
+      const notification = {
+        notification: {
+          title: 'New Message',
+          body: req.body.message,
+        },
+        data: {
+          type: "MESSAGE",
+          sender: JSON.stringify(participant.toJSON()),
+          content: JSON.stringify(participant.toJSON())
+        },
+        token: participant.fbToken
+      }
+      sendPushNotification(notification)
     }
-    sendPushNotification(notification)
-    res.status(200).send(message)
-
-  } else {
-    return res.status(400).json({
-      error: ERR_FB_TOKEN_NOT_FOUND,
-      error_type: "ERR_FB_TOKEN_NOT_FOUND",
-      error_content: ERR_FB_TOKEN_NOT_FOUND
-    });
   }
+
+  res.status(200).send(message)
+
+
+
 }
 
 exports.uploadFile = async (req, res) => {
