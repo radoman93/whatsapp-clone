@@ -59,7 +59,7 @@ exports.sendMessage = async (req, res) => {
           sender: JSON.stringify(participant.toJSON()),
           content: JSON.stringify(participant.toJSON())
         },
-        token: participant.fbToken
+        token: participant.user.fbToken
       }
       sendPushNotification(notification)
     }
