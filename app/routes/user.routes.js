@@ -36,4 +36,9 @@ module.exports = function(app) {
     [authJwt.verifyToken],
     controller.edit
   );
+  app.post(
+    "/api/user/byPhoneNumber",
+    [authJwt.verifyToken],
+    controller.getUsersByPhoneNumber
+  );
 };

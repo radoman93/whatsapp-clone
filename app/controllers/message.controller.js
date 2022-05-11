@@ -75,13 +75,28 @@ exports.sendMessage = async (req, res) => {
 
 exports.uploadFile = async (req, res) => {
 
-  const message = await db.Message.create({
-    guid: crypto.randomUUID(),
+  const participants = await db.Participant.findAll({
+    where: {
+      [Op.and]: [{
+        conversationId: req.body.conversationId
+      },
+        {userId: {[Op.not]: req.userId}}]
+    },
+    include: [{
+      model: db.User,
+      as: 'user'
+    }]
+  })
+  const guid = crypto.randomUUID()
+  let message = await db.Message.create({
+    guid: guid,
     conversationId: req.body.conversationId,
     senderId: req.userId,
     message: req.body.messageType,
     messageType: req.body.messageType
   })
+
+
 
 
   for (let file of req.files) {
@@ -100,6 +115,33 @@ exports.uploadFile = async (req, res) => {
       fileUrl: `uploads/${file.filename}`
     })
   }
+  for (let participant of participants) {
+    if (participant.user.fbToken) {
+      message = await db.Message.findOne({
+        where: {
+          id: message.id
+        },
+        include: [{
+          model: db.Attachment
+        }]
+      })
+      console.log("message", message.toJSON());
+      const notification = {
+        notification: {
+          title: 'New Message',
+          body: "PHOTO"
+        },
+        data: {
+          type: "MESSAGE",
+          sender: JSON.stringify(participant.user.toJSON()),
+          content: JSON.stringify(message.toJSON())
+        },
+        token: participant.user.fbToken
+      }
+      sendPushNotification(notification)
+    }
+  }
+
   res.send(req.files)
 }
 
@@ -126,6 +168,9 @@ exports.getMessagesByConversationId = async (req, res) => {
       },
         {
           model: db.Deleted_Messages
+        },
+        {
+          model:db.User
         }],
       order: [
         ['createdAt', 'DESC'],

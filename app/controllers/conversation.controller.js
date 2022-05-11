@@ -16,7 +16,6 @@ const {QueryTypes} = require("sequelize");
 async function findAllWithTasks() {
 
 
-
 }
 
 
@@ -42,7 +41,7 @@ exports.getAllConversations = async (req, res) => {
 
     const data = await db.Conversation.findAndCountAll({
       where: {
-            id: {[Op.in]: db.sequelize.literal(`(SELECT "conversationId" FROM "Participants" WHERE "Participants"."userId" = 6)`)}
+        id: {[Op.in]: db.sequelize.literal(`(SELECT "conversationId" FROM "Participants" WHERE "Participants"."userId" = ${req.userId})`)}
       },
       limit, offset,
       include: [{
@@ -54,11 +53,15 @@ exports.getAllConversations = async (req, res) => {
             as: 'user'
           },
         ]
-      }]
+      },
+        {
+          model: db.Message,
+          limit: 1,
+          order: [
+            ['createdAt', 'DESC'],
+          ]
+        }]
     })
-
-
-
 
 
     const response = getPagingData(data, page, limit);
